@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64bcef96c35a61649b7eb46d08a3011a, type: 3}
+  m_Name: Enemy 14
+  m_EditorClassIdentifier: 
+  enemyID: 14
+  enemyName: "\uC2A4\uCF08\uB808\uD1A4 \uBC29\uD328"
+  enemyType: 1
+  bodyType: 0
+  rank: 1
+  minMaxEXP: 96000000c8000000
+  gold:
+    dropRate: 0
+    minMaxDrop: 
+  waringEffect:
+  - {fileID: 0}
+  attackEffect:
+  - {fileID: 0}
+  maxHealth: 400
+  collisionDamage: 20
+  speed: 2
+  attackDamage:
+  - 30
+  attackRate:
+  - 0
+  attackMoveSpeed:
+  - 0
+  attackRange: 0
+  attackType: 
+  enrageBuffValue: []
+  shieldBuffValue: []

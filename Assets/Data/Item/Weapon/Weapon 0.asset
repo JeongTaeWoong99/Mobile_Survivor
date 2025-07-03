@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
+  m_Name: Weapon 0
+  m_EditorClassIdentifier: 
+  itemId: 0
+  itemIcon: {fileID: 21300000, guid: 29fe8a93e1343ff4a94952987a3c342b, type: 3}
+  itemName: "\uC8FC\uBA39"
+  itemType: 0
+  desc: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC744 \uC8FC\uBA39\uC73C\uB85C \uACF5\uACA9\uD569\uB2C8\uB2E4."
+  baseDamage: 40
+  baseRate: 1
+  baseRange: 3
+  baseCount: 4
+  basePenetration: 1
+  bullet:
+  - {fileID: 7308793349900079891, guid: 28398a879e063b145817986ce72d6e89, type: 3}
+  levelUpList:
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 0
+      increaseValue: 5
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 15
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 10
+    - levelUpType: 4
+      increaseValue: 25
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 0
+      increaseValue: 5
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 0
+      increaseValue: 5
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 15
+    - levelUpType: 1
+      increaseValue: 25
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 30
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 20
+    - levelUpType: 4
+      increaseValue: 10
+  - levelUpData:
+    - levelUpType: 3
+      increaseValue: 1
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 1
+      increaseValue: 30
+  selectableSkillList:
+  - {fileID: 11400000, guid: d00991137cfa14b4dbf343a197bb5a32, type: 2}
+  - {fileID: 11400000, guid: a0e14698cb02f154fb5f524bea660ed9, type: 2}
+  - {fileID: 11400000, guid: ed2322210b9c71947b22bf688bc18c01, type: 2}

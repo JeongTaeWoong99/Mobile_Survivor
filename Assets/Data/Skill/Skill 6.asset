@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c161b19af4eb5c46b131e0be6fb0548, type: 3}
+  m_Name: Skill 6
+  m_EditorClassIdentifier: 
+  skillId: 6
+  skillIcon: {fileID: 21300000, guid: 4029a9cfeb86f134c9c5af05993eaac8, type: 3}
+  skillName: "\uB370\uC2A4 \uC2A4\uD53C\uC5B4"
+  skillType: 1
+  skillDesc: "\uAC00\uC7A5 \uAC15\uB825\uD55C \uC801\uC758 \uC2EC\uC7A5\uC5D0 \uD544\uC911\uD558\uB294
+    \uAC15\uB825\uD55C \uCC3D \uBC1C\uC0AC.(\uBCF4\uC2A4\uC5D0\uAC8C 2\uBC30\uC758
+    \uD53C\uD574)\n\uC801\uC911\uD55C \uBAA8\uB4E0 \uC801 2\uCD08 \uAE30\uC808."
+  skillObject:
+  - {fileID: 8735597154522508242, guid: d643b06da99f2b547b67a24817fb9f0c, type: 3}
+  skillRatePer:
+  - 500
+  skillCooldown: 30000
+  skillDamageDuration: 0
+  stunTime: 2
+  isBossDamageBoost: 1
+  stack: 0

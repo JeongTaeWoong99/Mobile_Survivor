@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
+  m_Name: Weapon 1
+  m_EditorClassIdentifier: 
+  itemId: 1
+  itemIcon: {fileID: 21300000, guid: e59cf04fb0636794cb011216c538c8ed, type: 3}
+  itemName: "\uD65C"
+  itemType: 1
+  desc: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC744 \uD654\uC0B4\uB85C \uACF5\uACA9\uD569\uB2C8\uB2E4."
+  baseDamage: 15
+  baseRate: 0.5
+  baseRange: 7
+  baseCount: 4
+  basePenetration: 1
+  bullet:
+  - {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
+  levelUpList:
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 20
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 20
+    - levelUpType: 1
+      increaseValue: 10
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 30
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 3
+      increaseValue: 1
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 25
+    - levelUpType: 1
+      increaseValue: 15
+  - levelUpData:
+    - levelUpType: 2
+      increaseValue: 1
+    - levelUpType: 0
+      increaseValue: 15
+  - levelUpData:
+    - levelUpType: 0
+      increaseValue: 40
+  selectableSkillList:
+  - {fileID: 11400000, guid: b6cd06e2e24ce034eb56b45c0c428fd2, type: 2}
+  - {fileID: 11400000, guid: 9daa0d5a1046ac34b93c4911e2420913, type: 2}
+  - {fileID: 11400000, guid: e3401a3fca187214d86f2bdfe6e21861, type: 2}

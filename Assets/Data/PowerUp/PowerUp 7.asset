@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b737b8b52c0e648bbb5147709d7c0c, type: 3}
+  m_Name: PowerUp 7
+  m_EditorClassIdentifier: 
+  id: 7
+  sprite: {fileID: 21300000, guid: eed44235dcbd621438f7c0c4f05e2356, type: 3}
+  powerUpName: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD \uBC94\uC704 \uC99D\uAC00"
+  desc: "\uB7AD\uD06C \uB2F9 \uACBD\uD5D8\uCE58 \uD68D\uB4DD \uBC94\uC704 10% \uC99D\uAC00"
+  needGold: 2c0100005802000084030000b0040000dc050000

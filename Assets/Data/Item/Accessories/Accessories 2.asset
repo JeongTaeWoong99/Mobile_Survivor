@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
+  m_Name: Accessories 2
+  m_EditorClassIdentifier: 
+  itemId: 2
+  itemIcon: {fileID: 21300000, guid: 21225a939e3a00248a550b3c4cce7186, type: 3}
+  itemName: "\uBE68\uAC04 \uBC84\uC12F"
+  itemType: 2
+  desc: "\uCD5C\uB300 \uCCB4\uB825\uC774 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  baseDamage: 0
+  baseRate: 0
+  baseRange: 0
+  baseCount: 0
+  basePenetration: 0
+  projectile: []
+  levelUpList:
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 10
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 20
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 30
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 40
+  - levelUpData:
+    - levelUpType: 1
+      increaseValue: 50
+  selectableSkillList: []

@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64bcef96c35a61649b7eb46d08a3011a, type: 3}
+  m_Name: Enemy 6
+  m_EditorClassIdentifier: 
+  enemyID: 6
+  enemyName: "\uD1A0\uBBF8"
+  enemyType: 4
+  bodyType: 1
+  rank: 4
+  minMaxEXP: 0000000000000000
+  gold:
+    dropRate: 100
+    minMaxDrop: 0000000001000000
+  waringEffect:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  attackEffect:
+  - {fileID: 2271446670229756607, guid: 6849ba984c1c7804fb68783490c31b28, type: 3}
+  - {fileID: 0}
+  - {fileID: 309021440344627608, guid: 87a7d07c07db92c40be203db6f4cda7f, type: 3}
+  - {fileID: 2271446670229756607, guid: 9a65c1eec23f74949b6cf4ef24023c1b, type: 3}
+  - {fileID: 3853514576245629425, guid: 44d3206fa9ad2b74fb699bba7e1ec7b7, type: 3}
+  maxHealth: 60000
+  collisionDamage: 40
+  speed: 2
+  attackDamage:
+  - 50
+  - 0
+  - 30
+  - 15
+  - 40
+  attackRate:
+  - 15000
+  - 30000
+  - 30000
+  - 30000
+  - 30000
+  attackMoveSpeed:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  attackRange: 10
+  attackType: 0100000002000000010000000100000001000000
+  enrageBuffValue: []
+  shieldBuffValue:
+  - 15000
+  - 3000
