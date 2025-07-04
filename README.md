@@ -15,4 +15,10 @@
 
 ## 관련 링크
 - 시연 영상      | [바로가기](https://www.youtube.com/watch?v=ugx6h1X3BUs&feature=youtu.be)
-- 프로파일링 영상 | 
+- 프로파일링 영상 |
+
+<pre>
+시연 영상       | [바로가기](https://www.youtube.com/watch?v=ugx6h1X3BUs)
+프로파일링 영상 | (준비 중)
+깃허브          | [바로가기](https://github.com/JeongTaeWoong99/프로젝트명)
+</pre>
