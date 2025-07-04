@@ -22,3 +22,9 @@
 프로파일링 영상 | (준비 중)
 깃허브          | [바로가기](https://github.com/JeongTaeWoong99/프로젝트명)
 </pre>
+
+<table>
+  <tr><td>시연 영상</td><td> | <a href="https://www.youtube.com/watch?v=ugx6h1X3BUs">바로가기</a></td></tr>
+  <tr><td>프로파일링 영상</td><td> | 준비 중</td></tr>
+  <tr><td>깃허브</td><td> | <a href="https://github.com/JeongTaeWoong99/프로젝트명">바로가기</a></td></tr>
+</table>
