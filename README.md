@@ -20,13 +20,13 @@
 <h3 align="center">메인 메뉴</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2845e559-3841-40ee-aaeb-4d57e67cbc6f" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/2845e559-3841-40ee-aaeb-4d57e67cbc6f"/>
 </p>
 
 <h3 align="center">파워 업</h3>
 
 <p align="center">
-  <img src="" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/e2664fa9-f621-41c4-8030-764e4e3e8269"/>
 </p>
 
 <h3 align="center">캐릭터 선택</h3>
