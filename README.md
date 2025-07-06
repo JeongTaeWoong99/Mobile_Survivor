@@ -20,31 +20,31 @@
 <h3 align="center">메인 메뉴</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2845e559-3841-40ee-aaeb-4d57e67cbc6f"/>
+  <img src="https://github.com/user-attachments/assets/2845e559-3841-40ee-aaeb-4d57e67cbc6f" width="66%"/>
 </p>
 
 <h3 align="center">파워 업</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e2664fa9-f621-41c4-8030-764e4e3e8269"/>
+  <img src="https://github.com/user-attachments/assets/e2664fa9-f621-41c4-8030-764e4e3e8269" width="66%"/>
 </p>
 
 <h3 align="center">캐릭터 선택</h3>
 
 <p align="center">
-  <img src="" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/72e3b1c9-682a-4cd3-8a53-5d0cd6347ab4" width="66%"/>
 </p>
 
 <h3 align="center">게임 사진 1</h3>
 
 <p align="center">
-  <img src="" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/c40eb3dd-c267-47ea-8b3f-4894f2a9b019" width="66%"/>
 </p>
 
 <h3 align="center">게임 사진 2</h3>
 
 <p align="center">
-  <img src="" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/15f1355d-63cc-478d-82b2-c232231dc8e4" width="66%"/>
 </p>
 
 ## 관련 링크
