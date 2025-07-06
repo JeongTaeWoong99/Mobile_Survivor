@@ -20,8 +20,7 @@
 <h3 align="center">메인 메뉴</h3>
 
 <p align="center">
-  <img src="![메인메뉴-Photoroom](https://github.com/user-attachments/assets/f868a093-4759-4c81-a7be-7f79f1303435)
-" width="66%"/>
+  <img src="https://github.com/user-attachments/assets/2845e559-3841-40ee-aaeb-4d57e67cbc6f" width="66%"/>
 </p>
 
 <h3 align="center">파워 업</h3>
