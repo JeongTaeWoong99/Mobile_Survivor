@@ -6,6 +6,7 @@
 - [📂 프로젝트 구조](#-프로젝트-구조)
 - [🛠 기술 스택](#-기술-스택)
 - [🏗 아키텍처](#-아키텍처)
+- [🔍 성능 최적화 과정](#-성능-최적화-과정)
 
 ## 📋 개요
 
@@ -100,6 +101,12 @@
 - **안전성 검사** : 모든 주요 메서드에 Null 체크 및 예외 처리
 - **렌더링 최적화** : 2D Pixel Perfect Camera로 픽셀 아트 최적화
 
+### 반응형 UI 시스템
+- **해상도 대응** : Canvas Scaler의 Scale With Screen Size 모드로 다양한 화면 비율 지원
+- **앵커 기반 배치** : Anchor/Pivot 시스템으로 UI 요소 자동 정렬
+- **일관된 UX** : 모든 모바일 기기에서 동일한 조작 경험 제공
+- **동적 크기 조정** : 화면 크기에 따라 UI 요소 비율 유지
+
 ## 📂 프로젝트 구조
 
 ```
@@ -181,250 +188,409 @@ Assets/Scripts/
 
 ## 🏗 아키텍처
 
-### 1️⃣ 싱글톤 패턴
+### 1️⃣ 오브젝트 풀링 기반 최적화 파이프라인
 
-주요 매니저 클래스들은 싱글톤 패턴을 적용하여 전역 접근성과 단일 인스턴스를 보장합니다.
+게임 시작부터 적 스폰까지 전체 흐름을 자동화하여 런타임 성능을 극대화했습니다.
+
+```
+[게임 시작 - 로딩 화면]
+  ↓
+GameManager.GameStartCo()
+  ↓
+PoolManager.PreWarmAllPoolsCoroutine()  // 페이드인 중 Pre-warming (10개/프레임)
+  ├─ Enemy 프리팹 × 20개 사전 생성
+  ├─ PlayerBullet × 20개 사전 생성
+  └─ EnemyBullet × 20개 사전 생성
+  ↓
+[게임 플레이 - 런타임]
+  ↓
+SpawnManager.SpawnEnemy(EnemyData)  // 웨이브 기반 스폰
+  ↓
+PoolManager.Get(0)  // 풀에서 재사용 (Instantiate 없음)
+  ├─ 비활성화된 오브젝트 재사용 (O(1) 성능)
+  └─ 풀 부족 시 런타임 확장
+  ↓
+Enemy.Init(EnemyData)  // ScriptableObject 데이터 자동 세팅
+```
+
+**핵심 코드** :
 
 ```csharp
-public class GameManager : MonoBehaviour
-{
-    public static GameManager instance;
-
-    private void Awake()
-    {
-        instance = this;
-    }
-}
-```
-
-### 2️⃣ 데이터 기반 설계
-
-ScriptableObject를 활용하여 게임 데이터와 로직을 분리했습니다.
-
-```
-ItemData (ScriptableObject)
-  ├─ 무기 스탯 (damage, rate, range, count, penetration)
-  ├─ 무기 타입 (melee / ranged)
-  └─ 발사체 프리팹 참조
-```
-
-### 3️⃣ 컴포넌트 기반 구조
-
-각 게임 오브젝트는 역할에 따라 분리된 컴포넌트로 구성됩니다.
-
-```
-Player GameObject
-  ├─ Player.cs (이동, 충돌, 상태)
-  ├─ PlayerFunction.cs (유틸리티)
-  └─ Weapon GameObject (자식)
-       └─ Weapon.cs (공격 로직)
-```
-
-### 4️⃣ 게임 흐름 제어
-
-게임 상태 변화에 따른 UI 업데이트 및 로직 처리를 구조화했습니다.
-
-```
-레벨업 발생
-  ↓
-GameManager.GetExp()
-  ↓
-IngameUI.Show() (아이템 선택 UI)
-  ↓
-Weapon.WeaponLevelUp() (무기 강화)
-```
-
-### 5️⃣ 오브젝트 풀링 아키텍처
-
-```
-PoolManager
-  ├─ prefabs[] (프리팹 배열)
-  ├─ poolList[] (오브젝트 풀 리스트)
-  ├─ PreWarmAllPoolsCoroutine() (사전 생성)
-  └─ Get() / GetWithPosition() (재사용)
-       ↓
-  비활성화된 오브젝트 재사용
-            또는
-  새 오브젝트 생성 및 풀 추가
-```
-
-**핵심 구현** :
-
-```csharp
+// PoolManager.cs - 프레임 분산 Pre-warming
 public IEnumerator PreWarmAllPoolsCoroutine(int objectsPerFrame = 10)
 {
     for (int prefabIndex = 0; prefabIndex < prefabs.Length; prefabIndex++)
     {
-        int createdThisFrame = 0;
-
         for (int count = 0; count < preWarmCounts[prefabIndex]; count++)
         {
             GameObject obj = Instantiate(prefabs[prefabIndex], transform);
             obj.SetActive(false);
             poolList[prefabIndex].Add(obj);
 
-            createdThisFrame++;
-
-            // 프레임 분산
-            if (createdThisFrame >= objectsPerFrame)
+            if (++createdThisFrame >= objectsPerFrame)
             {
                 createdThisFrame = 0;
-                yield return null;
+                yield return null;  // 프레임 분산으로 렉 방지
             }
         }
     }
 }
 ```
 
-### 6️⃣ 무기 시스템 아키텍처
-
-각 무기 타입은 고유한 발사 메커니즘을 가집니다.
-
-**주먹 (근접)** - 회전 배치 + 재활성화
 ```csharp
-private void ArmDeployment()
+// SpawnManager.cs - 풀링과 연계된 스폰 시스템
+private void SpawnEnemy(EnemyData data)
 {
-    int forCount = baseCount + countIn + skillCount;
-
-    for (int index = 0; index < forCount; index++)
-    {
-        Transform bullet = transform.GetChild(index);
-
-        // 원형 배치
-        Vector3 rotVec = Vector3.forward * (360 * index) / forCount;
-        bullet.Rotate(rotVec);
-        bullet.Translate(bullet.up, Space.World);
-
-        // 수치 초기화
-        bulletComponent.Init(finalCalculationDamage, basePenetration + penetrationIn, adjustedRange, Vector3.forward, false, 0);
-    }
+    GameObject enemy = PoolManager.instance.Get(0);  // 풀에서 가져오기
+    enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
+    enemy.GetComponent<Enemy>().Init(data);          // 데이터 자동 초기화
 }
+```
 
-private void ReActivateBullet()
+**최적화 효과** :
+- 게임 중 Instantiate/Destroy 호출 최소화 (GC 압력 감소)
+- 로딩 시 프레임 드랍 방지 (10개/프레임 분산 생성)
+- 적 스폰 시 즉각적인 생성 (Pool.Get()의 빠른 탐색)
+
+### 2️⃣ ScriptableObject 기반 데이터 자동화 시스템
+
+모든 게임 데이터를 ScriptableObject로 관리하여 코드와 데이터를 완전히 분리하고, 런타임 초기화를 자동화했습니다.
+
+**데이터 구조** :
+```
+[Inspector - 디자인 단계]
+ItemData.asset (ScriptableObject)
+  ├─ itemId     : 0
+  ├─ baseDamage : 10
+  ├─ baseRate   : 2.0
+  ├─ bullet     : [Prefab 참조]
+  └─ levelUpList:
+       ├─ Lv1: Damage +20%, Count +1
+       ├─ Lv2: Rate +15%
+       └─ Lv3: Penetration +1
+
+[Runtime - 게임 실행]
+Weapon.Init(ItemData data)
+  ↓
+자동 초기화 :
+  ├─ weaponId   = data.itemId
+  ├─ baseDamage = data.baseDamage × 캐릭터 패시브
+  ├─ baseRate   = data.baseRate
+  ├─ bulletId   = PoolManager에서 자동 검색
+  └─ CalculateAndDeployment() 호출
+```
+
+**핵심 코드** :
+
+```csharp
+// Weapon.cs - 데이터 기반 자동 초기화
+public void Init(ItemData data)
 {
-    for (int i = 0; i < conditionalBulletList.Count; i++)
+    weaponId   = data.itemId;
+    baseDamage = data.baseDamage
+        * CharacterPassive.AllDamage
+        * CharacterPassive.MeleeDamage(itemType)
+        * CharacterPassive.RangeDamage(itemType);
+
+    // 프리팹 ID 자동 검색
+    bulletId = new int[data.bullet.Length];
+    for (int i = 0; i < PoolManager.instance.prefabs.Length; i++)
     {
-        if (!conditionalBulletList[i].bullet.gameObject.activeSelf)
+        for (int j = 0; j < data.bullet.Length; j++)
         {
-            conditionalBulletTimerList[i] += Time.deltaTime;
-            if (conditionalBulletTimerList[i] > baseRate * 100f / rateInPer)
-            {
-                conditionalBulletList[i].bullet.gameObject.SetActive(true);
-            }
+            if (data.bullet[j] == PoolManager.instance.prefabs[i])
+                bulletId[j] = i;
         }
     }
+
+    CalculateAndDeployment();  // 최종 스탯 계산 및 배치
 }
 ```
 
-**활 (원거리)** - 타겟팅 + 발사
+**자동화 장점** :
+- 코드 수정 없이 Inspector에서 무기 추가/수정 가능
+- 데이터 재사용 (EnemyData, SkillData 동일 구조)
+- 런타임 에러 방지 (Null 체크 및 자동 검증)
+
+### 3️⃣ 레벨업 기반 성장 시스템
+
+경험치 획득부터 무기 강화, 스킬 해금까지 이어지는 성장 파이프라인을 구현했습니다.
+
+```
+[적 처치]
+  ↓
+DropItem 생성 (경험치 구슬)
+  ↓
+Player 충돌 감지
+  ↓
+GameManager.GetExp(minEXP, maxEXP)
+  ├─ currnetEXP += Random.Range(min, max) × expInPer
+  └─ if (currnetEXP >= nextEXP[playerLevel])
+       ↓
+     playerLevel++
+       ↓
+     IngameUI.Show()  // 레벨업 UI 표시
+       ↓
+     CreateSelection()  // 아이템 3개 랜덤 선택
+       ├─ 무기/악세사리 우선 (만렙 제외)
+       └─ 부족 시 소모품 추가
+       ↓
+     [플레이어 선택]
+       ↓
+     Item.OnClick()
+       ├─ 무기 강화: Weapon.WeaponLevelUp()
+       │   ├─ damageInPer += 20%
+       │   ├─ countIn += 1
+       │   └─ CalculateAndDeployment() (재계산)
+       │
+       └─ 스킬 해금 조건 체크 (특정 레벨 도달 시)
+           ↓
+         SkillData 활성화
+```
+
+**핵심 코드** :
+
 ```csharp
-private IEnumerator BowFire(Transform shootTrans)
+// IngameUI.cs - 레벨업 아이템 선택 시스템
+private void CreateSelection()
 {
-    int forCount = baseCount + countIn + skillCount;
+    List<int> weaponOrAccessoryList = new List<int>();
+    List<int> consumableList = new List<int>();
 
-    for (int index = 0; index < forCount; index++)
+    // 만렙이 아닌 무기/악세사리 필터링
+    for (int i = 0; i < items.Length; i++)
     {
-        Vector3 dir = (shootTrans.position - transform.position).normalized;
+        if ((items[i].data.itemType == ItemData.ItemType.Melee ||
+             items[i].data.itemType == ItemData.ItemType.Range ||
+             items[i].data.itemType == ItemData.ItemType.Accessories)
+            && items[i].level != items[i].data.levelUpList.Count)
+        {
+            weaponOrAccessoryList.Add(i);
+        }
+        else if (items[i].data.itemType == ItemData.ItemType.Consumption)
+        {
+            consumableList.Add(i);
+        }
+    }
 
-        // 랜덤 분산
-        dir.x += Random.Range(-0.1f, 0.1f);
-        dir.y += Random.Range(-0.1f, 0.1f);
+    // 3개 선택 (무기/악세사리 우선, 부족 시 소모품 추가)
+    List<int> randomNums = new List<int>();
+    if (weaponOrAccessoryList.Count >= 3)
+    {
+        while (randomNums.Count < 3)
+        {
+            int selected = weaponOrAccessoryList[Random.Range(0, weaponOrAccessoryList.Count)];
+            if (!randomNums.Contains(selected))
+                randomNums.Add(selected);
+        }
+    }
+    else
+    {
+        randomNums = weaponOrAccessoryList;
+        foreach (var consumable in consumableList)
+        {
+            if (!randomNums.Contains(consumable))
+                randomNums.Add(consumable);
+        }
+    }
 
-        // 폭발 화살 확률
-        int randomRange = Random.Range(0, 100);
-        GameObject bulletObj = randomRange >= explosiveArrowPer
-            ? PoolManager.instance.GetWithPosition(bulletId[0], transform.position)
-            : PoolManager.instance.GetWithPosition(skillObjectId, transform.position);
+    // 선택된 아이템만 활성화
+    foreach (int index in randomNums)
+        items[index].gameObject.SetActive(true);
+}
+```
 
-        bullet.rotation = Quaternion.FromToRotation(Vector3.up, dir);
+**성장 시스템 특징** :
+- 성장 완료 무기 자동 제외 (중복 선택 방지)
+- 무기/악세사리 우선 제공 (성장성 보장)
+- 스킬 해금 조건 (특정 무기 레벨 도달 시)
 
-        yield return new WaitForSeconds(0.05f);
+### 4️⃣ PlayerPrefs 영구 재화 시스템
+
+게임 세션 종료 후에도 재화를 유지하여 메타 성장을 구현했습니다.
+
+```
+[게임 플레이]
+  ↓
+적 처치 → currentGold++
+  ↓
+[게임 종료]
+  ↓
+GameManager.GameVictory() / GameOver()
+  ↓
+IncrementGoldCoroutine(currentGold × 배율)
+  ├─ PlayerPrefs.SetInt("GoldData", totalGold)  // 즉시 저장 (강제 종료 대비)
+  └─ 부드러운 카운팅 애니메이션 (Lerp)
+  ↓
+[메인 메뉴]
+  ↓
+MainUI - 파워업 상점
+  ├─ PlayerPrefs.GetInt("GoldData")로 골드 로드
+  └─ 파워업 구매
+      ├─ CharacterPassive.PowerUp0() (최대 체력 +10)
+      ├─ CharacterPassive.PowerUp4() (총 공격력 +5%)
+      └─ PlayerPrefs.SetInt("PowerUp0", level++)
+  ↓
+CharacterPassive.InitializePowerUps()  // 게임 시작 시 캐싱
+  ├─ powerUpCache["PowerUp0"] = PlayerPrefs.GetInt("PowerUp0")
+  └─ 반복 호출 최적화 (Dictionary 캐싱)
+  ↓
+[다음 게임]
+  ↓
+적용된 파워업으로 시작
+  ├─ playerMaxHealth = baseHealth + PowerUp0()
+  ├─ totalAttackDamage = baseDamage × (100 + PowerUp4()) / 100
+  └─ moveSpeed = baseSpeed × (100 + PowerUp8()) / 100
+```
+
+**핵심 코드** :
+
+```csharp
+// CharacterPassive.cs - PlayerPrefs 캐싱 최적화
+private static Dictionary<string, int> powerUpCache = new Dictionary<string, int>();
+
+public static void InitializePowerUps()
+{
+    // 게임 시작 시 한 번만 로드 (반복 호출 방지)
+    powerUpCache["PowerUp0"] = PlayerPrefs.GetInt("PowerUp0", 0);  // 최대 체력
+    powerUpCache["PowerUp1"] = PlayerPrefs.GetInt("PowerUp1", 0);  // 초당 체력 회복
+    powerUpCache["PowerUp4"] = PlayerPrefs.GetInt("PowerUp4", 0);  // 총 공격력
+    // ...
+}
+
+public static int PowerUp0() => powerUpCache["PowerUp0"] * 10;  // 레벨당 +10 체력
+public static int PowerUp4() => powerUpCache["PowerUp4"] * 5;   // 레벨당 +5% 공격력
+```
+
+```csharp
+// GameManager.cs - 골드 저장 및 애니메이션
+private IEnumerator IncrementGoldCoroutine(int targetGold)
+{
+    // 즉시 저장 (코루틴 중단 대비)
+    PlayerPrefs.SetInt("GoldData", PlayerPrefs.GetInt("GoldData") + targetGold);
+
+    // 부드러운 카운팅 애니메이션
+    int startGold = currentGold;
+    float elapsed = 0f;
+
+    while (currentGold < targetGold)
+    {
+        elapsed += Time.fixedUnscaledDeltaTime * 2f;
+        currentGold = Mathf.Clamp((int)Mathf.Lerp(startGold, targetGold, elapsed), startGold, targetGold);
+        yield return null;
     }
 }
 ```
 
-**창 (관통)** - 360도 발사
-```csharp
-private void SpearShoot()
-{
-    int forCount = baseCount + countIn + skillCount;
+**재화 시스템 특징** :
+- 강제 종료 대비 (IncrementGoldCoroutine 시작 시 즉시 저장)
+- 성능 최적화 (Dictionary 캐싱으로 반복 PlayerPrefs 호출 방지)
+- 부드러운 UI (Lerp 기반 카운팅 애니메이션)
 
-    for (int index = 0; index < forCount; index++)
-    {
-        // 360도 분할
-        float angle = (360f * index / forCount) + 90f;
-        float radian = angle * Mathf.Deg2Rad;
+## 🔍 성능 최적화 과정
 
-        Vector3 dir = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0f).normalized;
+Unity Profiler를 활용하여 실제 모바일 기기에서 병목 지점을 분석하고 최적화를 진행했습니다.
 
-        GameObject bulletObj = PoolManager.instance.GetWithPosition(bulletId[0], transform.position);
-        bulletComponent.Init(finalCalculationDamage, basePenetration + penetrationIn, 0, dir, true, 0f);
-        bullet.rotation = Quaternion.FromToRotation(Vector3.up, dir);
-    }
-}
+### 프로파일링 프로세스
+
+```
+[1단계: 실기기 프로파일링]
+  ↓
+모바일 기기 USB 연결
+  ↓
+Unity Profiler - Development Build
+  ├─ CPU Usage 분석
+  ├─ Rendering 분석
+  ├─ Memory 분석
+  └─ GC Alloc 분석
+  ↓
+[2단계: 병목 지점 탐색]
+  ↓
+발견된 문제점:
+  ├─ Instantiate/Destroy 반복 호출 (높은 GC Alloc 발견)
+  ├─ 비효율적인 스크립트 로직 (과도한 호출 및 초기화 발견)
+  └─ 고비용 파티클 (3D 전용으로 만들어져, 2D 모바일 전용이 아닌 파티클 발견)
+  ↓
+[3단계: 최적화 적용]
+  ↓
+해결 방법:
+  ├─ 오브젝트 풀링 도입 → GC Alloc 대폭 감소
+  ├─ 컴포넌트 캐싱 → CPU 사용률 개선
+  └─ 파티클 경량화 → 렌더링 부하 감소
+  ↓
+[4단계: 재측정 및 검증]
+  ↓
+최적화 결과 확인
+  ├─ FPS 안정화 (기기별 안정적인 타겟 프레임 유지)
+  └─ 프레임 드랍 현상 개선
 ```
 
-**칼 (회전)** - 연속 회전
+### 주요 최적화 항목
+
+**1. 오브젝트 풀링 시스템 도입**
+
+**문제점** :
+- Profiler에서 Instantiate/Destroy 호출이 프레임당 수십 회 발생
+- 높은 GC Alloc으로 인한 프레임 드랍 발생
+
+**해결** :
+- Pre-warming 기법으로 게임 시작 시 오브젝트 사전 생성
+- 풀에서 재사용하여 런타임 중 Instantiate 호출 제거
+
+**효과** :
+- GC Alloc 대폭 감소
+- 프레임레이트 안정화
+
+**2. 스크립트 최적화**
+
+**문제점** :
+- GetComponent 반복 호출로 CPU 부하 증가
+- PlayerPrefs.GetInt 매 프레임 호출로 불필요한 디스크 I/O 발생
+
+**해결** :
 ```csharp
+// 개선 전
 void Update()
 {
-    if (weaponId == 3)
-    {
-        // 증가율 적용
-        transform.Rotate(Vector3.back * (finalCalculationRatePlus * Time.deltaTime));
-    }
+    int powerUp = PlayerPrefs.GetInt("PowerUp0");  // 매 프레임 호출
+    GetComponent<Enemy>().DoSomething();           // 매 프레임 탐색
 }
 
-private void SwordDeployment()
+// 개선 후
+private Enemy enemyComponent;
+private static Dictionary<string, int> powerUpCache;
+
+void Awake()
 {
-    int forCount = baseCount + countIn + skillCount;
-
-    for (int index = 0; index < forCount; index++)
-    {
-        Transform bullet = transform.GetChild(index);
-
-        Vector3 rotVec = Vector3.forward * (360 * index) / forCount;
-        bullet.Rotate(rotVec);
-        bullet.Translate(bullet.up * (baseRange * rangeInPer / 100f), Space.World);
-
-        bulletComponent.Init(finalCalculationDamage, -100, 0, Vector3.zero, false, 0);
-    }
+    enemyComponent = GetComponent<Enemy>();  // 한 번만 캐싱
 }
-```
 
-### 7️⃣ 스탯 계산 시스템
-
-무기 스탯은 3단계 곱연산으로 최종값을 계산합니다.
-
-```csharp
-private void CalculateAndDeployment()
+void Update()
 {
-    // 데미지 = 기본 데미지 × 무기 강화% × 총 데미지%
-    finalCalculationDamage = baseDamage
-        * (damageInPer / 100f)
-        * (GameManager.instance.totalAttackDamageInPer / 100f);
-
-    // 공격속도 증가율 (칼 회전속도)
-    finalCalculationRatePlus = baseRate
-        * (rateInPer / 100f)
-        * (GameManager.instance.totalAttackRateInPer / 100f);
-
-    // 공격속도 감소율 (발사 간격)
-    finalCalculationRateMinus = baseRate
-        * (100f / rateInPer)
-        * (100f / GameManager.instance.totalAttackRateInPer);
+    int powerUp = powerUpCache["PowerUp0"];  // Dictionary에서 즉시 조회
+    enemyComponent.DoSomething();            // 캐싱된 참조 사용
 }
 ```
 
-**스탯 계산 구조** :
-```
-Base Stat (기본값)
-  ↓
-× 무기 레벨업 % (damageInPer, rateInPer)
-  ↓
-× 악세서리 버프 % (totalAttackDamageInPer, totalAttackRateInPer)
-  ↓
-× 캐릭터 패시브 (CharacterPassive.AllDamage, MeleeDamage, RangeDamage)
-  ↓
-= Final Calculation (최종 적용값)
-```
+**효과** :
+- CPU 사용률 개선
+- Profiler Scripts 항목 부하 감소
+
+**3. 파티클 시스템 최적화**
+
+**문제점** :
+- 3D 전용 파티클을 2D 모바일에 사용하여 불필요한 렌더링 기능 작동
+- 프레임 드랍 현상 발생 (간헐적 렉)
+
+**해결** :
+- 2D 전용 경량 파티클로 교체
+- Max Particles 수 조정
+- 불필요한 라이팅/쉐이더 제거
+
+**효과** :
+- 렌더링 부하 감소
+- 프레임 드랍 현상 개선
+
+### 프로파일링 영상
+
+실제 프로파일링 과정과 최적화 결과는 [프로파일링 영상](https://youtu.be/XffEw6n8kGA)에서 확인할 수 있습니다.
