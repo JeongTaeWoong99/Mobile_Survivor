@@ -3,7 +3,8 @@
     "allow": [
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(curl -s https://raw.githubusercontent.com/JeongTaeWoong99/Adventurer_Raising/main/README.md)"
+      "Bash(curl -s https://raw.githubusercontent.com/JeongTaeWoong99/Adventurer_Raising/main/README.md)",
+      "PowerShell(Get-ChildItem *)"
     ],
     "deny": [],
     "ask": []
